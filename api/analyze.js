@@ -55,8 +55,8 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: process.env.OPENAI_MODEL || 'gpt-4.1',
-        instructions: system,
-        input: userMsg,
+        instructions: systemPrompt + "\nYou must return valid JSON only. No markdown.",
+        input: userMsg + "\n\nReturn the result as valid JSON only.
         max_output_tokens: 8000,
         temperature: 0.2,
       }),
