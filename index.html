@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCALE™ Discovery Analyser</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & TOKENS ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --c-bg:       #0f0f0d;
+  --c-surface:  #181816;
+  --c-border:   #2a2a26;
+  --c-border-2: #343430;
+  --c-ink:      #f0ede4;
+  --c-ink-2:    #b8b5ac;
+  --c-ink-3:    #6e6c65;
+  --c-ink-4:    #3d3d38;
+  --c-red:      #e8502e;
+  --c-red-dim:  #2a1810;
+  --c-amber:    #d4900a;
+  --c-amber-dim:#261e08;
+  --c-green:    #2a9462;
+  --c-green-dim:#0d2018;
+  --c-blue:     #4a82d4;
+  --c-blue-dim: #0d1828;
+  --f-display: 'Playfair Display', Georgia, serif;
+  --f-body:    'DM Sans', system-ui, sans-serif;
+  --f-mono:    'DM Mono', monospace;
+  --r:    4px;
+  --r-lg: 8px;
+}
+
+html { scroll-behavior: smooth; }
+body  { font-family: var(--f-body); background: var(--c-bg); color: var(--c-ink); font-size: 13.5px; line-height: 1.6; min-height: 100vh; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-border-2); border-radius: 2px; }
+
+/* ─── HEADER ─── */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--c-bg);
+  border-bottom: 1px solid var(--c-border);
+  height: 52px;
+  display: flex; align-items: center;
+  padding: 0 1.5rem;
+  gap: 12px;
+}
+.header-logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-pill {
+  background: var(--c-red); color: #fff;
+  font-family: var(--f-mono); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.15em; padding: 3px 8px; border-radius: 3px;
+}
+.logo-text {
+  font-family: var(--f-mono); font-size: 11px;
+  color: var(--c-ink-2); letter-spacing: 0.06em;
+}
+.logo-sep { color: var(--c-ink-4); }
+.logo-sub { font-family: var(--f-body); font-size: 11.5px; color: var(--c-ink-3); font-style: italic; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.header-chip {
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.1em;
+  padding: 3px 10px; border-radius: 12px; border: 1px solid;
+}
+.header-chip.spiced { color: var(--c-amber); border-color: var(--c-amber-dim); background: var(--c-amber-dim); }
+.header-chip.phase  { color: var(--c-blue);  border-color: var(--c-blue-dim);  background: var(--c-blue-dim);  }
+
+/* ─── LAYOUT ─── */
+.layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 0;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: calc(100vh - 52px);
+}
+
+/* ─── LEFT PANEL ─── */
+.left-panel {
+  border-right: 1px solid var(--c-border);
+  padding: 1.5rem;
+  position: sticky; top: 52px;
+  height: calc(100vh - 52px);
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.panel-title {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--c-ink-3); margin-bottom: 10px;
+}
+
+/* ─── FORM ELEMENTS ─── */
+.field { margin-bottom: 10px; }
+.field:last-child { margin-bottom: 0; }
+.field-label {
+  font-family: var(--f-mono); font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--c-ink-3); margin-bottom: 5px; display: block;
+}
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+input[type="text"], select, textarea {
+  width: 100%;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r);
+  padding: 8px 10px;
+  font-family: var(--f-body); font-size: 13px;
+  color: var(--c-ink); outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+}
+input[type="text"]:focus, select:focus, textarea:focus {
+  border-color: var(--c-border-2);
+  background: #1c1c1a;
+}
+input::placeholder, textarea::placeholder {
+  color: var(--c-ink-4); font-style: italic;
+}
+select { cursor: pointer; }
+select option { background: var(--c-surface); }
+textarea {
+  resize: vertical; min-height: 220px;
+  font-size: 12.5px; line-height: 1.65;
+}
+
+/* ─── INPUT META ─── */
+.input-meta {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-top: 6px;
+}
+.char-count {
+  font-family: var(--f-mono); font-size: 10px; color: var(--c-ink-4);
+}
+.example-btn {
+  background: none; border: none;
+  font-size: 11.5px; color: var(--c-blue);
+  cursor: pointer; font-family: var(--f-body);
+  text-decoration: underline; text-decoration-style: dotted;
+  text-underline-offset: 3px; padding: 0;
+}
+.example-btn:hover { color: #7aa6e4; }
+
+/* ─── RUN BUTTON ─── */
+.run-btn {
+  width: 100%; margin-top: 12px;
+  background: var(--c-ink); color: var(--c-bg);
+  border: none; border-radius: var(--r);
+  padding: 11px 0;
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.1em; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.15s;
+}
+.run-btn:hover:not(:disabled) { opacity: 0.88; }
+.run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.run-btn .spinner {
+  width: 13px; height: 13px;
+  border: 2px solid rgba(15,15,13,0.2);
+  border-top-color: var(--c-bg); border-radius: 50%;
+  animation: spin 0.7s linear infinite; display: none;
+}
+.run-btn.loading .spinner { display: block; }
+.run-btn.loading .btn-label { opacity: 0.5; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── DIVIDER ─── */
+.divider {
+  border: none; border-top: 1px solid var(--c-border);
+  margin: 0;
+}
+
+/* ─── ERROR ─── */
+.error-msg {
+  background: var(--c-red-dim); border: 1px solid rgba(232,80,46,0.25);
+  border-radius: var(--r); padding: 10px 12px;
+  font-size: 12px; color: var(--c-red); display: none;
+  margin-top: 10px; line-height: 1.55;
+}
+.error-msg.visible { display: block; }
+
+/* ─── RIGHT PANEL ─── */
+.right-panel {
+  min-height: calc(100vh - 52px);
+  display: flex; flex-direction: column;
+}
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3rem 2rem; text-align: center;
+}
+.empty-glyph {
+  font-size: 3rem; opacity: 0.08; margin-bottom: 20px;
+  font-family: var(--f-display);
+}
+.empty-heading {
+  font-family: var(--f-display); font-size: 1.4rem;
+  color: var(--c-ink-2); margin-bottom: 10px;
+  font-style: italic;
+}
+.empty-sub { font-size: 13px; color: var(--c-ink-3); max-width: 380px; line-height: 1.65; }
+
+/* ─── LOADING STATE ─── */
+.loading-state {
+  flex: 1; display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+}
+.loading-state.active { display: flex; }
+.loading-dots { display: flex; gap: 6px; }
+.ld { width: 7px; height: 7px; border-radius: 50%; background: var(--c-ink-4); animation: ldpulse 1.2s ease-in-out infinite; }
+.ld:nth-child(2) { animation-delay: 0.2s; }
+.ld:nth-child(3) { animation-delay: 0.4s; }
+@keyframes ldpulse { 0%,60%,100% { transform: scale(0.8); opacity: 0.3; } 30% { transform: scale(1.1); opacity: 1; } }
+.loading-text {
+  font-family: var(--f-display); font-size: 14px; color: var(--c-ink-3);
+  font-style: italic;
+}
+
+/* ─── RESULTS ─── */
+.results-area { display: none; flex-direction: column; flex: 1; }
+.results-area.visible { display: flex; }
+
+/* Result top bar */
+.result-bar {
+  position: sticky; top: 52px; z-index: 50;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: 10px 1.5rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.result-account {
+  font-family: var(--f-display); font-size: 15px; font-weight: 700;
+  color: var(--c-ink);
+}
+.result-meta { font-size: 11.5px; color: var(--c-ink-3); font-style: italic; }
+.result-actions { margin-left: auto; display: flex; gap: 6px; }
+.action-btn {
+  font-family: var(--f-mono); font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: transparent; border: 1px solid var(--c-border);
+  border-radius: var(--r); padding: 4px 10px;
+  color: var(--c-ink-3); cursor: pointer;
+  transition: all 0.15s;
+}
+.action-btn:hover { border-color: var(--c-border-2); color: var(--c-ink); }
+
+/* Tab nav */
+.tab-nav {
+  display: flex; border-bottom: 1px solid var(--c-border);
+  padding: 0 1.5rem; background: var(--c-surface);
+  position: sticky; top: calc(52px + 45px); z-index: 49;
+}
+.tab-btn {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  padding: 10px 14px; background: none; border: none;
+  color: var(--c-ink-4); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color 0.15s;
+}
+.tab-btn:hover { color: var(--c-ink-2); }
+.tab-btn.active { color: var(--c-ink); border-bottom-color: var(--c-red); }
+
+/* Tab panels */
+.tab-panels { flex: 1; }
+.tab-panel { display: none; padding: 1.5rem; }
+.tab-panel.active { display: block; }
+
+/* ─── SCORE BANNER ─── */
+.score-banner {
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg); padding: 1.25rem 1.5rem;
+  display: flex; align-items: center; gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.score-banner.excellent { border-color: rgba(42,148,98,0.35); background: var(--c-green-dim); }
+.score-banner.good      { border-color: rgba(212,144,10,0.35); background: var(--c-amber-dim); }
+.score-banner.weak      { border-color: rgba(232,80,46,0.35);  background: var(--c-red-dim);   }
+.score-num {
+  font-family: var(--f-display); font-size: 3.5rem; font-weight: 700;
+  line-height: 1; flex-shrink: 0;
+}
+.excellent .score-num { color: var(--c-green); }
+.good      .score-num { color: var(--c-amber); }
+.weak      .score-num { color: var(--c-red);   }
+.score-label {
+  font-family: var(--f-display); font-size: 1.1rem; font-weight: 700;
+  margin-bottom: 4px;
+}
+.excellent .score-label { color: var(--c-green); }
+.good      .score-label { color: var(--c-amber); }
+.weak      .score-label { color: var(--c-red);   }
+.score-desc { font-size: 12.5px; color: var(--c-ink-2); line-height: 1.55; }
+.score-bar-wrap { margin-left: auto; text-align: right; flex-shrink: 0; }
+.score-bar-track {
+  width: 90px; height: 5px; background: rgba(255,255,255,0.06);
+  border-radius: 3px; overflow: hidden; margin-bottom: 5px;
+}
+.score-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.excellent .score-bar-fill { background: var(--c-green); }
+.good      .score-bar-fill { background: var(--c-amber); }
+.weak      .score-bar-fill { background: var(--c-red);   }
+.score-frac { font-family: var(--f-mono); font-size: 11px; color: var(--c-ink-3); }
+
+/* ─── SECTION LABEL ─── */
+.sec-label {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px; margin-top: 20px;
+}
+.sec-label:first-child { margin-top: 0; }
+.sec-label-text {
+  font-family: var(--f-mono); font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-ink-4);
+  white-space: nowrap;
+}
+.sec-line { flex: 1; height: 1px; background: var(--c-border); }
+
+/* ─── SPICED ITEMS ─── */
+.spiced-list { display: grid; gap: 6px; }
+.spiced-item {
+  border: 1px solid var(--c-border); border-radius: var(--r);
+  overflow: hidden; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.spiced-item:hover { border-color: var(--c-border-2); }
+.spiced-item.open  { border-color: var(--c-border-2); }
+
+.spiced-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; background: var(--c-surface);
+}
+.spiced-glyph {
+  width: 26px; height: 26px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-display); font-size: 14px; font-weight: 700;
+  flex-shrink: 0;
+}
+.spiced-info { flex: 1; min-width: 0; }
+.spiced-name { font-size: 12.5px; font-weight: 500; color: var(--c-ink); }
+.spiced-tag  { font-size: 11px; color: var(--c-ink-3); font-style: italic; }
+.spiced-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.pip-dots { display: flex; gap: 3px; }
+.pip { width: 7px; height: 7px; border-radius: 50%; background: var(--c-border-2); }
+.spiced-score { font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; min-width: 24px; text-align: right; }
+.chevron { font-size: 9px; color: var(--c-ink-4); transition: transform 0.2s; }
+.spiced-item.open .chevron { transform: rotate(180deg); }
+
+.spiced-body {
+  display: none; padding: 10px 12px 12px;
+  border-top: 1px solid var(--c-border);
+  background: var(--c-bg);
+}
+.spiced-item.open .spiced-body { display: block; }
+.spiced-evidence { font-size: 12.5px; color: var(--c-ink-2); line-height: 1.65; margin-bottom: 8px; }
+
+.gap-box {
+  border: 1px solid rgba(232,80,46,0.2);
+  background: var(--c-red-dim); border-radius: var(--r);
+  padding: 8px 10px; font-size: 12px; color: #e87a60;
+  line-height: 1.55; margin-bottom: 5px;
+}
+.gap-box strong { display: block; color: var(--c-red); margin-bottom: 2px; font-size: 11px; font-family: var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.action-box {
+  border: 1px solid rgba(74,130,212,0.2);
+  background: var(--c-blue-dim); border-radius: var(--r);
+  padding: 8px 10px; font-size: 12px; color: #88b0e8;
+  line-height: 1.55;
+}
+.action-box strong { display: block; color: var(--c-blue); margin-bottom: 2px; font-size: 11px; font-family: var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Score color classes */
+.s1 .spiced-glyph { background: rgba(232,80,46,0.12);  color: var(--c-red);   }
+.s2 .spiced-glyph { background: rgba(212,144,10,0.12); color: var(--c-amber); }
+.s3 .spiced-glyph { background: rgba(212,144,10,0.08); color: var(--c-amber); }
+.s4 .spiced-glyph { background: rgba(42,148,98,0.12);  color: var(--c-green); }
+.s5 .spiced-glyph { background: rgba(42,148,98,0.18);  color: var(--c-green); }
+.s1 .spiced-score { color: var(--c-red);   }
+.s2 .spiced-score { color: var(--c-amber); }
+.s3 .spiced-score { color: var(--c-amber); }
+.s4 .spiced-score { color: var(--c-green); }
+.s5 .spiced-score { color: var(--c-green); }
+.s1 .pip.filled { background: var(--c-red);   }
+.s2 .pip.filled { background: var(--c-amber); }
+.s3 .pip.filled { background: var(--c-amber); }
+.s4 .pip.filled { background: var(--c-green); }
+.s5 .pip.filled { background: var(--c-green); }
+
+/* ─── REALITY CHECK ─── */
+.rc-gate {
+  border: 1px solid; border-radius: var(--r);
+  padding: 10px 12px; margin-bottom: 6px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.rc-gate.pass { border-color: rgba(42,148,98,0.25);  background: var(--c-green-dim); }
+.rc-gate.fail { border-color: rgba(232,80,46,0.25);  background: var(--c-red-dim);   }
+.rc-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.rc-gate.pass .rc-icon { color: var(--c-green); }
+.rc-gate.fail .rc-icon { color: var(--c-red); }
+.rc-label { font-size: 12.5px; font-weight: 500; margin-bottom: 2px; }
+.rc-gate.pass .rc-label { color: var(--c-green); }
+.rc-gate.fail .rc-label { color: var(--c-red); }
+.rc-detail { font-size: 12px; color: var(--c-ink-3); line-height: 1.5; }
+
+/* ─── FORK ─── */
+.fork-box {
+  border: 1px solid rgba(212,144,10,0.25);
+  background: var(--c-amber-dim); border-radius: var(--r);
+  padding: 12px 14px; margin-bottom: 6px;
+}
+.fork-label {
+  font-family: var(--f-mono); font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--c-amber); margin-bottom: 6px;
+}
+.fork-desc { font-size: 12.5px; color: var(--c-ink-2); line-height: 1.6; }
+.fork-missed { font-size: 12px; color: var(--c-amber); font-style: italic; margin-top: 6px; }
+
+/* ─── CRM PHRASES ─── */
+.crm-phrase {
+  border: 1px solid; border-radius: var(--r);
+  padding: 8px 10px; margin-bottom: 5px;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.crm-phrase.weak   { border-color: rgba(232,80,46,0.2);  background: var(--c-red-dim);  }
+.crm-phrase.strong { border-color: rgba(42,148,98,0.2);  background: var(--c-green-dim);}
+.crm-tag {
+  font-family: var(--f-mono); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 1px 5px; border-radius: 3px; flex-shrink: 0; margin-top: 2px;
+}
+.weak   .crm-tag { background: rgba(232,80,46,0.15);  color: var(--c-red);   }
+.strong .crm-tag { background: rgba(42,148,98,0.15);  color: var(--c-green); }
+.crm-phrase-text  { font-size: 12.5px; color: var(--c-ink-2); }
+.crm-phrase-why   { font-size: 11.5px; color: var(--c-ink-3); margin-top: 2px; font-style: italic; }
+
+/* ─── CHAMPION SCALE ─── */
+.ch-scale {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;
+  margin-bottom: 12px;
+}
+.ch-level {
+  padding: 7px 4px; border-radius: var(--r);
+  text-align: center; border: 1px solid var(--c-border);
+  background: var(--c-surface); color: var(--c-ink-4);
+}
+.ch-level .lvl-num {
+  font-family: var(--f-display); font-size: 18px; font-weight: 700;
+  display: block; line-height: 1; margin-bottom: 3px;
+}
+.ch-level .lvl-name { font-size: 9.5px; line-height: 1.3; }
+.ch-level.active-1 { border-color: rgba(232,80,46,0.4);  background: var(--c-red-dim);   color: var(--c-red);   }
+.ch-level.active-2 { border-color: rgba(212,144,10,0.3); background: var(--c-amber-dim); color: var(--c-amber); }
+.ch-level.active-3 { border-color: rgba(212,144,10,0.25);background: var(--c-amber-dim); color: var(--c-amber); }
+.ch-level.active-4 { border-color: rgba(42,148,98,0.35); background: var(--c-green-dim); color: var(--c-green); }
+.ch-level.active-5 { border-color: rgba(42,148,98,0.45); background: var(--c-green-dim); color: var(--c-green); }
+
+.ch-assessment { font-size: 12.5px; color: var(--c-ink-2); line-height: 1.65; margin-bottom: 10px; }
+
+/* ─── VERDICT ROWS ─── */
+.verdict-list { display: grid; gap: 5px; }
+.verdict-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 10px; border-radius: var(--r);
+  border: 1px solid var(--c-border); background: var(--c-surface);
+  font-size: 12.5px; line-height: 1.5;
+}
+.verdict-row.pass { border-color: rgba(42,148,98,0.2);  background: var(--c-green-dim); }
+.verdict-row.fail { border-color: rgba(232,80,46,0.2);  background: var(--c-red-dim);   }
+.verdict-icon { font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+.verdict-row.pass .verdict-icon { color: var(--c-green); }
+.verdict-row.fail .verdict-icon { color: var(--c-red); }
+.verdict-text { color: var(--c-ink-2); }
+.verdict-text strong { color: var(--c-ink); font-weight: 500; }
+
+/* ─── METRICS ─── */
+.metrics-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 6px; }
+.metric-tile {
+  border: 1px solid var(--c-border); border-radius: var(--r);
+  padding: 10px 12px; background: var(--c-surface);
+}
+.metric-lbl { font-family: var(--f-mono); font-size: 9px; color: var(--c-ink-4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; }
+.metric-val { font-family: var(--f-display); font-size: 1.6rem; font-weight: 700; line-height: 1; color: var(--c-ink); }
+.metric-val.warn { color: var(--c-red); }
+.metric-val.ok   { color: var(--c-green); }
+.metric-note { font-size: 10.5px; color: var(--c-ink-4); margin-top: 4px; }
+
+/* ─── NEXT CALL QUESTIONS ─── */
+.question-list { display: grid; gap: 6px; }
+.q-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 9px 11px; border-radius: var(--r);
+  border: 1px solid var(--c-blue-dim); background: var(--c-blue-dim);
+}
+.q-tag {
+  font-family: var(--f-mono); font-size: 9px;
+  background: rgba(74,130,212,0.12); color: var(--c-blue);
+  padding: 2px 6px; border-radius: 3px; flex-shrink: 0;
+  margin-top: 2px; letter-spacing: 0.06em; white-space: nowrap;
+}
+.q-text { font-size: 12.5px; color: var(--c-ink-2); line-height: 1.55; }
+
+/* ─── ONE THING ─── */
+.one-thing {
+  margin-top: 12px; border: 1px solid var(--c-border-2);
+  border-radius: var(--r); padding: 14px 16px;
+  background: var(--c-surface);
+}
+.one-thing-label {
+  font-family: var(--f-mono); font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--c-ink-4); margin-bottom: 7px;
+}
+.one-thing-text {
+  font-family: var(--f-display); font-size: 14px;
+  color: var(--c-ink); line-height: 1.65; font-style: italic;
+}
+
+/* ─── FOOTER ─── */
+.result-footer {
+  border-top: 1px solid var(--c-border);
+  padding: 10px 1.5rem;
+  font-size: 11px; color: var(--c-ink-4); font-style: italic;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .left-panel { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--c-border); }
+}
+@media (max-width: 540px) {
+  .logo-sub, .header-chip.spiced { display: none; }
+  .metrics-row { grid-template-columns: 1fr 1fr; }
+  .ch-scale { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">
+    <span class="logo-pill">SCALE™</span>
+    <span class="logo-text logo-sep">|</span>
+    <span class="logo-text">DISCOVERY ANALYSER</span>
+    <span class="logo-text logo-sep" style="margin:0 2px;">·</span>
+    <span class="logo-sub">Sell Like You Know What You're Doing</span>
+  </div>
+  <div class="header-right">
+    <span class="header-chip spiced">SPICED</span>
+    <span class="header-chip phase">CONVERT</span>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT: INPUT -->
+  <div class="left-panel">
+    <div>
+      <div class="panel-title">Call context</div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Account</label>
+          <input type="text" id="accountName" placeholder="e.g. Veridian Systems">
+        </div>
+        <div class="field">
+          <label class="field-label">Deal size</label>
+          <input type="text" id="dealSize" placeholder="e.g. $280K">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Stage</label>
+          <select id="dealStage">
+            <option value="">Select…</option>
+            <option value="1">Stage 1 — Discovery</option>
+            <option value="2">Stage 2 — Qualified</option>
+            <option value="3">Stage 3 — Proposal</option>
+            <option value="4">Stage 4 — Negotiation</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Champion role</label>
+          <input type="text" id="championRole" placeholder="e.g. VP Operations">
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div style="flex:1;">
+      <div class="panel-title">Transcript or call notes <span style="color:var(--c-red)">*</span></div>
+      <textarea id="transcript" placeholder="Paste your full transcript or detailed call notes.
+
+The more the buyer said — numbers, dates, roles, consequences — the more precise the SPICED diagnosis.
+
+Minimum: a few paragraphs of substance."></textarea>
+      <div class="input-meta">
+        <button class="example-btn" onclick="loadExample()">↳ Load example call</button>
+        <span class="char-count" id="charCount">0 chars</span>
+      </div>
+      <div class="error-msg" id="errorMsg"></div>
+      <button class="run-btn" id="runBtn" onclick="runAnalysis()">
+        <div class="spinner"></div>
+        <span class="btn-label">↳ RUN SPICED ANALYSIS</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT: RESULTS -->
+  <div class="right-panel">
+
+    <!-- Empty -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-glyph">◎</div>
+      <div class="empty-heading">Every deal is guilty until proven real.</div>
+      <div class="empty-sub">Paste a discovery call transcript and run the SPICED analysis to find out what the buyer actually proved — and what you only assumed.</div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" id="loadingState">
+      <div class="loading-dots">
+        <div class="ld"></div><div class="ld"></div><div class="ld"></div>
+      </div>
+      <div class="loading-text" id="loadingText">Running SPICED diagnostic…</div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-area" id="resultsArea">
+
+      <!-- Result bar -->
+      <div class="result-bar">
+        <span class="result-account" id="resultAccount"></span>
+        <span style="color:var(--c-border-2)">·</span>
+        <span class="result-meta" id="resultMeta"></span>
+        <div class="result-actions">
+          <button class="action-btn" onclick="copyCRM()">Copy CRM</button>
+        </div>
+      </div>
+
+      <!-- Tab nav -->
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="spiced"   onclick="switchTab('spiced',this)">SPICED</button>
+        <button class="tab-btn"        data-tab="reality"  onclick="switchTab('reality',this)">Reality Check</button>
+        <button class="tab-btn"        data-tab="champion" onclick="switchTab('champion',this)">Champion</button>
+        <button class="tab-btn"        data-tab="pipeline" onclick="switchTab('pipeline',this)">Pipeline</button>
+        <button class="tab-btn"        data-tab="nextcall" onclick="switchTab('nextcall',this)">Next Call</button>
+      </div>
+
+      <!-- Tab panels -->
+      <div class="tab-panels">
+
+        <!-- SPICED -->
+        <div class="tab-panel active" id="tab-spiced">
+          <div id="scoreBanner" class="score-banner">
+            <div class="score-num" id="scoreNum">—</div>
+            <div>
+              <div class="score-label" id="scoreLabel">—</div>
+              <div class="score-desc" id="scoreDesc">—</div>
+            </div>
+            <div class="score-bar-wrap">
+              <div class="score-bar-track">
+                <div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div>
+              </div>
+              <div class="score-frac" id="scoreFrac">0 / 35</div>
+            </div>
+          </div>
+          <div class="sec-label"><span class="sec-label-text">SPICED Breakdown</span><div class="sec-line"></div></div>
+          <div class="spiced-list" id="spicedList"></div>
+        </div>
+
+        <!-- REALITY CHECK -->
+        <div class="tab-panel" id="tab-reality">
+          <div class="sec-label"><span class="sec-label-text">Three Gates — No Partial Credit</span><div class="sec-line"></div></div>
+          <div id="rcGates"></div>
+          <div id="forkSection" style="display:none;">
+            <div class="sec-label" style="margin-top:20px;"><span class="sec-label-text">The Fork</span><div class="sec-line"></div></div>
+            <div class="fork-box" id="forkBox"></div>
+          </div>
+          <div id="crmSection" style="display:none;">
+            <div class="sec-label" style="margin-top:20px;"><span class="sec-label-text">CRM Language Audit</span><div class="sec-line"></div></div>
+            <div id="crmPhrases"></div>
+          </div>
+        </div>
+
+        <!-- CHAMPION -->
+        <div class="tab-panel" id="tab-champion">
+          <div class="sec-label"><span class="sec-label-text">Champion Strength Scale (1–5)</span><div class="sec-line"></div></div>
+          <div class="ch-scale" id="chScale"></div>
+          <div class="ch-assessment" id="chAssessment"></div>
+          <div id="chAction" style="display:none;" class="action-box" style="margin-bottom:16px;"></div>
+          <div class="sec-label" style="margin-top:20px;"><span class="sec-label-text">Economic Buyer</span><div class="sec-line"></div></div>
+          <div class="verdict-list" id="ebList"></div>
+        </div>
+
+        <!-- PIPELINE -->
+        <div class="tab-panel" id="tab-pipeline">
+          <div class="sec-label"><span class="sec-label-text">5 Pipeline Inspection Questions</span><div class="sec-line"></div></div>
+          <div class="verdict-list" id="pipelineList"></div>
+          <div class="sec-label" style="margin-top:20px;"><span class="sec-label-text">Call Metrics</span><div class="sec-line"></div></div>
+          <div class="metrics-row" id="metricsRow"></div>
+        </div>
+
+        <!-- NEXT CALL -->
+        <div class="tab-panel" id="tab-nextcall">
+          <div class="sec-label"><span class="sec-label-text">Questions for Your Next Call</span><div class="sec-line"></div></div>
+          <div class="question-list" id="questionList"></div>
+          <div class="one-thing" id="oneThing" style="display:none;">
+            <div class="one-thing-label">The one thing — highest priority for next call</div>
+            <div class="one-thing-text" id="oneThingText"></div>
+          </div>
+        </div>
+
+      </div><!-- end tab-panels -->
+
+      <div class="result-footer">
+        <span>⚙</span>
+        <span>Analysed against SPICED + SCALE™ · Every deal is guilty until proven real.</span>
+      </div>
+
+    </div><!-- end results-area -->
+  </div><!-- end right-panel -->
+</div><!-- end layout -->
+
+<script>
+'use strict';
+
+/* ─── STATE ─── */
+var G = { analysis: null, loadingTimer: null, loadingIdx: 0 };
+var LOADING_MSGS = [
+  'Running SPICED diagnostic\u2026',
+  'Checking what the buyer actually proved\u2026',
+  'Separating signal from reality\u2026',
+  'Scoring champion strength with evidence\u2026',
+  'Building the Reality Check\u2026'
+];
+
+/* ─── HELPERS ─── */
+function safe(v, fb) {
+  return (v !== null && v !== undefined && v !== '') ? String(v) : (fb !== undefined ? fb : '\u2014');
+}
+function arr(v)  { return Array.isArray(v) ? v : []; }
+function obj(v)  { return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}; }
+function clamp(v, lo, hi) {
+  var n = (typeof v === 'number' && !isNaN(v)) ? v : lo;
+  return Math.min(hi, Math.max(lo, n));
+}
+function el(id) { return document.getElementById(id); }
+function ce(tag) { return document.createElement(tag); }
+
+/* ─── CHAR COUNTER ─── */
+el('transcript').addEventListener('input', function() {
+  el('charCount').textContent = this.value.length.toLocaleString() + ' chars';
+});
+
+/* ─── EXAMPLE ─── */
+function loadExample() {
+  el('accountName').value = 'Hartfield Manufacturing';
+  el('dealSize').value = '$220,000';
+  el('dealStage').value = '2';
+  el('championRole').value = 'VP of Operations';
+  var t = 'Rep: Hi Rachel, thanks for making time. Before I show you anything I want to understand what you are working on.\n\n'
+    + 'Rachel (VP Ops): Of course. We have SAP, Salesforce, and a separate inventory tool that does not talk to either of them. My team spends a huge amount of time reconciling data manually every week.\n\n'
+    + 'Rep: How long has that been the situation?\n\n'
+    + 'Rachel: Since we acquired a smaller company 18 months ago. We inherited their systems and never properly integrated them.\n\n'
+    + 'Rep: How many people are doing that reconciliation work and roughly how many hours a week?\n\n'
+    + 'Rachel: Four or five people, each spending four to five hours a week. Call it 20 hours a week across the team, every week.\n\n'
+    + 'Rep: At your loaded rate, what does that come to annually?\n\n'
+    + 'Rachel: Probably $85 to $90 an hour loaded. So close to $80,000 a year just in reconciliation labor. And that does not count the errors.\n\n'
+    + 'Rep: Tell me about those errors.\n\n'
+    + 'Rachel: Three reporting mistakes in the last quarter from data being reconciled wrong. One made it into our board pack. That was a bad day.\n\n'
+    + 'Rep: Is there a timeline pressure around solving this?\n\n'
+    + 'Rachel: We are doing a Series B raise starting in Q3. Our lead investor specifically asked about our data infrastructure. If we cannot show clean integrated reporting before the first LP meeting it could delay the raise. We are talking July 15th as the hard deadline.\n\n'
+    + 'Rep: If you miss July 15th, what does that mean?\n\n'
+    + 'Rachel: The Series B is $18 million. If it slips three months we are burning runway we do not have.\n\n'
+    + 'Rep: Who else is involved in this decision?\n\n'
+    + 'Rachel: Mainly me and our CTO James. He has final sign-off on any technology investment above $100K. I have not briefed him yet, I have been doing initial vendor calls first.';
+  el('transcript').value = t;
+  el('charCount').textContent = t.length.toLocaleString() + ' chars';
+}
+
+/* ─── TABS ─── */
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  btn.classList.add('active');
+  el('tab-' + tabId).classList.add('active');
+}
+
+/* ─── ACCORDION ─── */
+function toggleSpiced(el) { el.classList.toggle('open'); }
+
+/* ─── COPY CRM ─── */
+function copyCRM() {
+  if (!G.analysis) return;
+  var d = G.analysis;
+  var lines = [
+    'SCALE DISCOVERY ANALYSIS — ' + new Date().toLocaleDateString(),
+    'Account: ' + (el('accountName').value || 'N/A'),
+    'SPICED Score: ' + d.totalScore + '/35 — ' + safe(d.scoreLabel),
+    '',
+    'SPICED BREAKDOWN:'
+  ];
+  arr(d.spiced).forEach(function(s) {
+    lines.push('  ' + safe(s.letter) + ' ' + safe(s.name) + ': ' + clamp(s.score,1,5) + '/5 — ' + safe(s.evidenceSummary));
+  });
+  var rc = obj(d.realityCheck);
+  lines.push('', 'REALITY CHECK:');
+  ['number','champion','criticalEvent'].forEach(function(k, i) {
+    var labels = ['Buyer-confirmed number','Champion internal action','Business event on calendar'];
+    var item = obj(rc[k]);
+    lines.push('  ' + labels[i] + ': ' + (item.pass ? 'PASS' : 'FAIL') + ' — ' + safe(item.detail));
+  });
+  var ch = obj(d.champion);
+  lines.push('', 'CHAMPION: ' + clamp(ch.score,1,5) + '/5 — ' + safe(ch.levelName));
+  lines.push('', 'NEXT CALL PRIORITIES:');
+  arr(d.nextCallQuestions).slice(0,3).forEach(function(q,i) {
+    if (q && q.question) lines.push('  ' + (i+1) + '. [' + safe(q.element) + '] ' + safe(q.question));
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(function() {
+    var btn = document.querySelector('.action-btn');
+    var orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = orig; }, 2000);
+  });
+}
+
+/* ─── LOADING ─── */
+function startLoading() {
+  el('emptyState').style.display = 'none';
+  el('resultsArea').classList.remove('visible');
+  el('errorMsg').classList.remove('visible');
+  el('loadingState').classList.add('active');
+  G.loadingIdx = 0;
+  el('loadingText').textContent = LOADING_MSGS[0];
+  G.loadingTimer = setInterval(function() {
+    G.loadingIdx = (G.loadingIdx + 1) % LOADING_MSGS.length;
+    el('loadingText').textContent = LOADING_MSGS[G.loadingIdx];
+  }, 2200);
+  var btn = el('runBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+}
+
+function stopLoading() {
+  el('loadingState').classList.remove('active');
+  clearInterval(G.loadingTimer);
+  var btn = el('runBtn');
+  btn.disabled = false;
+  btn.classList.remove('loading');
+}
+
+/* ─── RENDER ─── */
+function render(d) {
+  G.analysis = d;
+  stopLoading();
+
+  // Header
+  var account = el('accountName').value || 'Discovery Call';
+  el('resultAccount').textContent = account;
+  var stageEl = el('dealStage');
+  var stage = stageEl.options[stageEl.selectedIndex].text;
+  var deal = el('dealSize').value;
+  el('resultMeta').textContent = [deal, stage].filter(Boolean).join(' \u00b7 ');
+
+  /* SCORE BANNER */
+  var score = clamp(d.totalScore, 0, 35);
+  var cls = score >= 25 ? 'excellent' : score >= 15 ? 'good' : 'weak';
+  el('scoreBanner').className = 'score-banner ' + cls;
+  el('scoreNum').textContent = score;
+  el('scoreLabel').textContent = safe(d.scoreLabel, 'Analysis complete');
+  el('scoreDesc').textContent = safe(d.scoreDescription);
+  el('scoreBarFill').style.width = Math.round(score / 35 * 100) + '%';
+  el('scoreFrac').textContent = score + ' / 35';
+
+  /* SPICED LIST */
+  var list = el('spicedList');
+  list.innerHTML = '';
+  arr(d.spiced).forEach(function(item) {
+    var sc = clamp(item.score, 1, 5);
+    var dots = '';
+    for (var i = 0; i < 5; i++) {
+      dots += '<div class="pip' + (i < sc ? ' filled' : '') + '"></div>';
+    }
+    var gapHtml = item.gap
+      ? '<div class="gap-box"><strong>Gap detected</strong>' + item.gap + '</div>'
+      : '';
+    var actionHtml = item.action
+      ? '<div class="action-box"><strong>Coaching action</strong>' + item.action + '</div>'
+      : '';
+    var div = ce('div');
+    div.className = 'spiced-item s' + sc;
+    div.innerHTML =
+      '<div class="spiced-row" onclick="toggleSpiced(this.parentElement)">' +
+        '<div class="spiced-glyph">' + safe(item.letter, '?') + '</div>' +
+        '<div class="spiced-info">' +
+          '<div class="spiced-name">' + safe(item.name) + '</div>' +
+          '<div class="spiced-tag">' + safe(item.tagline, '') + '</div>' +
+        '</div>' +
+        '<div class="spiced-right">' +
+          '<div class="pip-dots">' + dots + '</div>' +
+          '<div class="spiced-score">' + sc + '/5</div>' +
+          '<span class="chevron">&#9660;</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="spiced-body">' +
+        '<div class="spiced-evidence">' + safe(item.evidence, 'No evidence captured.') + '</div>' +
+        gapHtml + actionHtml +
+      '</div>';
+    if (sc <= 2) div.classList.add('open');
+    list.appendChild(div);
+  });
+
+  /* REALITY CHECK */
+  var rcEl = el('rcGates');
+  rcEl.innerHTML = '';
+  var rcKeys = [
+    { key: 'number',        label: 'Buyer-confirmed cost of inaction',       desc: 'A specific number in the buyer\'s own words' },
+    { key: 'champion',      label: 'Champion internal action (past 2 weeks)', desc: 'Documented action inside their org — not responsiveness' },
+    { key: 'criticalEvent', label: 'Business event on buyer\'s calendar',     desc: 'A specific date with a named consequence for missing it' }
+  ];
+  var rc = obj(d.realityCheck);
+  rcKeys.forEach(function(r) {
+    var item = obj(rc[r.key]);
+    var pass = !!item.pass;
+    var div = ce('div');
+    div.className = 'rc-gate ' + (pass ? 'pass' : 'fail');
+    div.innerHTML =
+      '<div class="rc-icon">' + (pass ? '&#10003;' : '&#10007;') + '</div>' +
+      '<div>' +
+        '<div class="rc-label">' + r.label + '</div>' +
+        '<div class="rc-detail">' + safe(item.detail, r.desc) + '</div>' +
+      '</div>';
+    rcEl.appendChild(div);
+  });
+
+  // Fork
+  var fork = obj(d.fork);
+  if (fork.description) {
+    el('forkSection').style.display = 'block';
+    el('forkBox').innerHTML =
+      '<div class="fork-label">&#9889; The Fork</div>' +
+      '<div class="fork-desc">' + fork.description +
+      (fork.timestamp ? ' <span style="font-family:var(--f-mono);font-size:10px;color:var(--c-amber);padding:1px 5px;background:rgba(212,144,10,0.1);border-radius:3px;">' + fork.timestamp + '</span>' : '') +
+      '</div>' +
+      (fork.missedQuestion ? '<div class="fork-missed">"' + fork.missedQuestion + '"</div>' : '');
+  }
+
+  // CRM phrases
+  var phrases = arr(d.crmPhrases).filter(function(p) { return p && p.phrase; });
+  if (phrases.length > 0) {
+    el('crmSection').style.display = 'block';
+    var crmEl = el('crmPhrases');
+    crmEl.innerHTML = '';
+    phrases.forEach(function(p) {
+      var type = p.type === 'strong' ? 'strong' : 'weak';
+      var div = ce('div');
+      div.className = 'crm-phrase ' + type;
+      div.innerHTML =
+        '<span class="crm-tag">' + (type === 'weak' ? 'Fails' : 'Passes') + '</span>' +
+        '<div>' +
+          '<div class="crm-phrase-text">"' + safe(p.phrase) + '"</div>' +
+          (p.reason ? '<div class="crm-phrase-why">' + p.reason + '</div>' : '') +
+        '</div>';
+      crmEl.appendChild(div);
+    });
+  }
+
+  /* CHAMPION */
+  var ch = obj(d.champion);
+  var chScore = clamp(ch.score, 1, 5);
+  var chScale = el('chScale');
+  chScale.innerHTML = '';
+  var lvlNames = ['', 'Contact only', 'Supportive', 'Active', 'Equipped', 'Mobilizer'];
+  for (var i = 1; i <= 5; i++) {
+    var div = ce('div');
+    div.className = 'ch-level' + (i === chScore ? ' active-' + i : '');
+    div.innerHTML = '<span class="lvl-num">' + i + '</span><span class="lvl-name">' + lvlNames[i] + '</span>';
+    chScale.appendChild(div);
+  }
+  el('chAssessment').textContent = safe(ch.assessment, 'No assessment available.');
+  var chAction = el('chAction');
+  if (ch.coachingAction) {
+    chAction.style.display = 'block';
+    chAction.innerHTML = '<strong>Coaching action</strong>' + ch.coachingAction;
+  }
+
+  // EB
+  var ebList = el('ebList');
+  ebList.innerHTML = '';
+  var ebItems = arr(obj(d.economicBuyer).items);
+  if (ebItems.length > 0) {
+    ebItems.forEach(function(item) {
+      var div = ce('div');
+      div.className = 'verdict-row';
+      div.innerHTML = '<span class="verdict-icon">' + safe(item.icon, '\u00b7') + '</span><div class="verdict-text">' + safe(item.text) + '</div>';
+      ebList.appendChild(div);
+    });
+  } else {
+    ebList.innerHTML = '<div class="verdict-row"><span class="verdict-icon" style="color:var(--c-amber)">&#9888;</span><div class="verdict-text">Economic Buyer not assessed.</div></div>';
+  }
+
+  /* PIPELINE */
+  var pList = el('pipelineList');
+  pList.innerHTML = '';
+  arr(d.pipelineInspection).forEach(function(item) {
+    var div = ce('div');
+    div.className = 'verdict-row ' + (item.pass ? 'pass' : 'fail');
+    div.innerHTML =
+      '<div class="verdict-icon">' + (item.pass ? '&#10003;' : '&#9888;') + '</div>' +
+      '<div class="verdict-text"><strong>' + safe(item.question) + '</strong> ' + safe(item.assessment) + '</div>';
+    pList.appendChild(div);
+  });
+
+  // Metrics
+  var mRow = el('metricsRow');
+  mRow.innerHTML = '';
+  arr(d.metrics).forEach(function(m) {
+    var div = ce('div');
+    div.className = 'metric-tile';
+    div.innerHTML =
+      '<div class="metric-lbl">' + safe(m.label) + '</div>' +
+      '<div class="metric-val ' + (m.warn ? 'warn' : m.ok ? 'ok' : '') + '">' + safe(m.value, '\u2014') + '</div>' +
+      '<div class="metric-note">' + safe(m.note, '') + '</div>';
+    mRow.appendChild(div);
+  });
+
+  /* NEXT CALL */
+  var qList = el('questionList');
+  qList.innerHTML = '';
+  arr(d.nextCallQuestions).forEach(function(q) {
+    if (!q || !q.question) return;
+    var div = ce('div');
+    div.className = 'q-item';
+    div.innerHTML =
+      '<span class="q-tag">' + safe(q.element, '?') + '</span>' +
+      '<div class="q-text">' + safe(q.question) + '</div>';
+    qList.appendChild(div);
+  });
+
+  if (d.oneFocus) {
+    el('oneThing').style.display = 'block';
+    el('oneThingText').textContent = d.oneFocus;
+  }
+
+  /* SHOW RESULTS */
+  el('resultsArea').classList.add('visible');
+
+  /* Reset to first tab */
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelector('[data-tab="spiced"]').classList.add('active');
+  el('tab-spiced').classList.add('active');
+}
+
+/* ─── MAIN ─── */
+async function runAnalysis() {
+  var transcript = el('transcript').value.trim();
+  if (!transcript || transcript.length < 60) {
+    el('errorMsg').textContent = 'Please paste a call transcript or detailed notes (at least a few paragraphs) to run the analysis.';
+    el('errorMsg').classList.add('visible');
+    return;
+  }
+  el('errorMsg').classList.remove('visible');
+  startLoading();
+
+  var account = el('accountName').value || 'the account';
+  var deal    = el('dealSize').value;
+  var stageEl = el('dealStage');
+  var stage   = stageEl.options[stageEl.selectedIndex].text;
+  var role    = el('championRole').value || 'primary contact';
+
+  var system = 'You are a SCALE discovery call diagnostic engine. Analyse calls using SPICED. '
+    + 'Respond ONLY with valid JSON. No markdown. No preamble. No text after the closing brace.\n\n'
+    + 'SCORING: 1=not attempted, 2=surface only, 3=present but unquantified, 4=buyer-confirmed specific, 5=buyer own words + number + consequence\n\n'
+    + 'RULES: Impact = number buyer said aloud (not rep calculation). Critical Event = buyer calendar date + named consequence. '
+    + 'Champion score = internal actions documented, not warmth or responsiveness. EB = budget authority confirmed directly.\n\n'
+    + 'Keep all string values concise (under 120 chars). Return exactly this JSON shape:\n\n'
+    + '{"totalScore":0,"scoreLabel":"","scoreDescription":"","spiced":['
+    + '{"letter":"S","name":"Situation","tagline":"Current state of buyers world","score":0,"evidenceSummary":"","evidence":"","gap":null,"action":null},'
+    + '{"letter":"P","name":"Pain","tagline":"Problem in buyers own words","score":0,"evidenceSummary":"","evidence":"","gap":null,"action":null},'
+    + '{"letter":"I","name":"Impact","tagline":"Buyer-confirmed number","score":0,"evidenceSummary":"","evidence":"","gap":null,"action":null},'
+    + '{"letter":"C","name":"Critical Event","tagline":"Date and consequence on buyers calendar","score":0,"evidenceSummary":"","evidence":"","gap":null,"action":null},'
+    + '{"letter":"E","name":"Envisioned Future","tagline":"Success in buyers own words","score":0,"evidenceSummary":"","evidence":"","gap":null,"action":null},'
+    + '{"letter":"D","name":"Decision","tagline":"Committee criteria and paper process","score":0,"evidenceSummary":"","evidence":"","gap":null,"action":null}],'
+    + '"realityCheck":{"number":{"pass":false,"detail":""},"champion":{"pass":false,"detail":""},"criticalEvent":{"pass":false,"detail":""}},'
+    + '"fork":{"description":"","timestamp":null,"missedQuestion":null},'
+    + '"crmPhrases":[{"phrase":"","type":"weak","reason":""}],'
+    + '"champion":{"score":0,"levelName":"","assessment":"","coachingAction":""},'
+    + '"economicBuyer":{"items":[{"icon":"","text":""}]},'
+    + '"pipelineInspection":['
+    + '{"question":"Q1 Cost of inaction","pass":false,"assessment":""},'
+    + '{"question":"Q2 Champion strength","pass":false,"assessment":""},'
+    + '{"question":"Q3 EB budget authority","pass":false,"assessment":""},'
+    + '{"question":"Q4 Close date ownership","pass":false,"assessment":""},'
+    + '{"question":"Q5 Critical Event reality","pass":false,"assessment":""}],'
+    + '"metrics":['
+    + '{"label":"Talk Ratio","value":"","note":"Rep vs buyer","warn":false,"ok":false},'
+    + '{"label":"Impact Questions","value":"","note":"Quantification probes","warn":false,"ok":false},'
+    + '{"label":"SPICED Gaps","value":"","note":"Elements scored 1 or 2","warn":false,"ok":false}],'
+    + '"nextCallQuestions":['
+    + '{"element":"","question":"","why":""},{"element":"","question":"","why":""},'
+    + '{"element":"","question":"","why":""},{"element":"","question":"","why":""}],'
+    + '"oneFocus":""}';
+
+  var userMsg = 'Analyse this discovery call using SPICED and SCALE.\n\n'
+    + 'Account: ' + account + '\nDeal Size: ' + deal + '\nStage: ' + stage + '\nChampion Role: ' + role + '\n\n'
+    + 'TRANSCRIPT:\n' + transcript + '\n\n'
+    + 'Be rigorous. Score only what buyers actually said and did. No partial credit for impressions.';
+
+  try {
+    var resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system: system, userMsg: userMsg })
+    });
+
+    var raw = await resp.json();
+
+    if (!resp.ok) {
+      throw new Error(raw.error || ('API error ' + resp.status));
+    }
+
+    render(raw.analysis);
+
+    el('emptyState').style.display = 'none';
+    el('errorMsg').textContent = 'Analysis failed: ' + err.message;
+    el('errorMsg').classList.add('visible');
+  }
+}
+</script>
+</body>
+</html>
