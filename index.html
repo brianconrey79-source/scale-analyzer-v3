@@ -1133,8 +1133,11 @@ async function runAnalysis() {
 
     render(raw.analysis);
 
+  } catch (err) {
+    stopLoading();
     el('emptyState').style.display = 'none';
-    el('errorMsg').textContent = 'Analysis failed: ' + err.message;
+    el('resultsArea').classList.remove('visible');
+    el('errorMsg').textContent = 'Analysis failed: ' + (err && err.message ? err.message : 'Unknown error');
     el('errorMsg').classList.add('visible');
   }
 }
